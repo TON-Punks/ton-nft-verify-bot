@@ -1,0 +1,5 @@
+aiogram==2.19
+psycopg2==2.9.3
+aioschedule==0.5.2
+requests==2.27.1
+python-dotenv

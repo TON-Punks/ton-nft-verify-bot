@@ -1,0 +1,37 @@
+{
+    "name": "TON NFT Verificator Telegram Bot",
+    "description": "Easy way to verify the holders of your NFT collection",
+    "repository": "https://github.com/Krokodealer/ton-nft-verify-bot",
+    "logo": "https://tonpunks.org/_nuxt/img/about.de416ec.gif",
+    "keywords": ["python", "ton", "nft", "telegram"],
+    "env": {
+      "BOT_TOKEN": {
+        "description": "Telegram bot API token from @BotFather // Example: 1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      },
+      "CHAT_ID": {
+        "description": "Telegram private chat for NFT owners. // Example: -1001234567890"
+      },
+      "COLLECTION": {
+        "description": "TON address of NFT collection. // Example: EQDwxUWb1ZxUarpj-mUF1gzD_jT4yiScHi_VL5AezWjsMT88"
+      },
+      "HEROKU_APP_NAME": {
+        "description": "Name of this app (copy of \"App name\" above)"
+      },
+      "TONCENTER_API_KEY": {
+        "description": "toncenter.com API key from @tonapibot"
+      }
+    },
+    "buildpacks": [
+      {
+        "url": "https://github.com/heroku/heroku-buildpack-python"
+      }
+    ],
+    "addons": [
+      {
+        "plan": "heroku-postgresql",
+        "options": {
+          "version": "14"
+        }
+      }
+    ]
+  }
