@@ -10,7 +10,7 @@
 
 ## How to run bot
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Krokodealer/ton-nft-verify-bot/tree/main)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/TON-Punks/ton-nft-verify-bot/tree/main)
 
 ### .env variables
 
