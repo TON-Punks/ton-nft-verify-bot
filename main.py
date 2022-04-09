@@ -44,9 +44,34 @@ async def start_message(msg: types.Message):
     """
     await bot.send_chat_action(msg.chat.id, 'typing')
     language = english if msg.from_user.language_code != 'ru' else russian
-    await bot.send_message(msg.chat.id, language['start_message'],
-                           reply_markup=InlineKeyboardMarkup().add(
-                               InlineKeyboardButton(text=language['start_verify'], callback_data='verify')))
+    cursor.execute(f"select * from verify where tgid = '{msg.from_user.id}'")
+    verified = len(cursor.fetchall())
+    if verified:
+        await bot.send_message(msg.chat.id, language['already_verified'], reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton(text=language['get_privileges'], callback_data='privileges')))
+    else:
+        await bot.send_message(msg.chat.id, language['start_message'],
+                            reply_markup=InlineKeyboardMarkup().add(
+                                InlineKeyboardButton(text=language['start_verify'], callback_data='verify')))
+
+
+@dp.callback_query_handler(lambda c: c.data == 'privileges')
+async def privileges(callback_query: types.CallbackQuery):
+    language = english if callback_query.from_user.language_code != 'ru' else russian
+    cursor.execute(f"select * from verify where tgid = '{callback_query.from_user.id}'")
+    verified = len(cursor.fetchall())
+    if verified:
+        link = await bot.create_chat_invite_link(CHAT_ID, name=f'{callback_query.from_user.id}',
+                                                 creates_join_request=True)
+        await bot.send_message(callback_query.message.chat.id,
+                               f'{language["privileges"]}',
+                               reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton(text=language['join_chat'], url=link.invite_link)).add(
+                                   InlineKeyboardButton(text=language['nft_share'], switch_inline_query='')))
+        await callback_query.answer()
+    else:
+        try:
+            await callback_query.answer(language['not_verified'], show_alert=True)
+        except:
+            await bot.send_message(callback_query.message.chat.id, language['not_verified'])
 
 
 @dp.callback_query_handler(lambda c: c.data == 'verify')
@@ -122,47 +147,35 @@ async def verify2(callback_query: types.CallbackQuery):
 @dp.message_handler(lambda m: m.chat.id > 0)
 async def check_nft(msg: types.Message):
     """
-    Проверка на наличие NFT и его принадлежность к коллекции. Отправка сообщения с реквизитами.
+    Проверка на наличие NFT и его/их принадлежность к коллекции. Отправка сообщения с реквизитами.
     """
     await bot.send_chat_action(msg.chat.id, 'typing')
     language = english if msg.from_user.language_code != 'ru' else russian
     try:
-        nft_checked = False
-        try:
-            disintar_address = json.loads(
-                requests.post(f'https://beta.disintar.io/api/get_entities/', headers=headers,
-                              data={'entity_name': 'NFT', 'order_by': '[]',
-                                    'filter_by': '[{"name": "nft_address", "value": "' + msg.text + '"}]', 'limit': 1,
-                                    'page': 0}).text)['data'][0]['owner']['wallet_address']
-            owner_address = (await get_ton_addresses(disintar_address))['b64url']
-            nft_checked = True
-        except:
-            if not nft_checked:
-                await asyncio.sleep(1)
-                owner_address = (await get_ton_addresses(msg.text))['b64url']
-            cursor.execute(f"select * from verify where owner = '{owner_address}'")
-            response = cursor.fetchall()
-            cursor.execute(f"select * from contest where owner = '{owner_address}'")
-            contest = cursor.fetchall()
-            if len(response) == 0:
-                if not nft_checked:
-                    await asyncio.sleep(1)
-                    disintar_address = (await get_ton_addresses(owner_address))['n_b64url']
-                nfts = await get_disintar_nfts(disintar_address, 1)
-                if len(nfts) == 0:
-                    nfts = await get_disintar_nfts(owner_address, 1)
-                if len(nfts) != 0 or len(contest) > 0:
-                    await bot.send_message(msg.chat.id,
-                                           f'{language["send"]} <a href="http://qrcoder.ru/code/?ton%3A%2F%2Ftransfer%2FEQABh4JBalyRKN42tZB1jevT3BheWqHYjkhSv3zoHldqqRJs%3Famount%3D10000000%26text%3Dverify{msg.from_user.id}&4&0"> </a><b>0.01 TON</b>\n\n{language["from"]} <code>{owner_address}</code>\n\n{language["to"]} <code>EQABh4JBalyRKN42tZB1jevT3BheWqHYjkhSv3zoHldqqRJs</code>\n\n'
-                                           f'{language["comment"]} <code>verify{msg.from_user.id}</code>\n\n{language["scan_qr"]}',
-                                           parse_mode=ParseMode.HTML,
-                                           reply_markup=InlineKeyboardMarkup().add(
-                                               InlineKeyboardButton(text=language['done'],
-                                                                    callback_data=owner_address)))
-                else:
-                    await msg.reply(language['no_nfts'])
+        await asyncio.sleep(1)
+        owner_address = (await get_ton_addresses(msg.text))['b64url']
+        cursor.execute(f"select * from verify where owner = '{owner_address}'")
+        response = cursor.fetchall()
+        cursor.execute(f"select * from contest where owner = '{owner_address}'")
+        contest = cursor.fetchall()
+        if len(response) == 0:
+            await asyncio.sleep(1)
+            disintar_address = (await get_ton_addresses(owner_address))['n_b64url']
+            nfts = await get_disintar_nfts(disintar_address, 1)
+            if len(nfts) == 0:
+                nfts = await get_disintar_nfts(owner_address, 1)
+            if len(nfts) != 0 or len(contest) > 0:
+                await bot.send_message(msg.chat.id,
+                                        f'{language["send"]} <a href="http://qrcoder.ru/code/?ton%3A%2F%2Ftransfer%2FEQABh4JBalyRKN42tZB1jevT3BheWqHYjkhSv3zoHldqqRJs%3Famount%3D10000000%26text%3Dverify{msg.from_user.id}&4&0"> </a><b>0.01 TON</b>\n\n{language["from"]} <code>{owner_address}</code>\n\n{language["to"]} <code>EQABh4JBalyRKN42tZB1jevT3BheWqHYjkhSv3zoHldqqRJs</code>\n\n'
+                                        f'{language["comment"]} <code>verify{msg.from_user.id}</code>\n\n{language["scan_qr"]}',
+                                        parse_mode=ParseMode.HTML,
+                                        reply_markup=InlineKeyboardMarkup().add(
+                                            InlineKeyboardButton(text=language['done'],
+                                                                callback_data=owner_address)))
             else:
-                await msg.reply(language['owner_verified'])
+                await msg.reply(language['no_nfts'])
+        else:
+            await msg.reply(language['owner_verified'])
     except Exception as e:
         await bot.send_message(msg.chat.id, language['is_it_ton'])
         print(e)

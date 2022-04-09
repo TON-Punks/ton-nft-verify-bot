@@ -2,7 +2,7 @@
   "no_longer_owner": "You are no longer the owner of the NFT in this collection\nGo through the verification again if you want to access the chat again",
   "start_verify": "Start verify",
   "start_message": "Hello! Click the button below to verify",
-  "send_nft": "Send me your Wallet or NFT address",
+  "send_nft": "Send me your TON address",
   "owner_verified": "The owner of this wallet has already passed verification",
   "is_it_ton": "Error. Is it TON address?",
   "done": "Done",
@@ -16,5 +16,9 @@
   "nft_verified": "Error. Maybe the verification has already been completed",
   "dont_see": "I don't see your transaction. Please try again in a few seconds",
   "disintar": "Page on the Disintar",
-  "nft_share": "Share your NFTs"
+  "nft_share": "Share your NFTs",
+  "already_verified": "You have already passed verification",
+  "get_privileges": "What does it give?",
+  "privileges": "Thanks to verification, the following features are available to you:",
+  "join_chat": "Join chat"
 }
