@@ -4,6 +4,8 @@ import os
 from aiogram import Bot
 from aiogram.dispatcher import Dispatcher
 import psycopg2
+from datetime import datetime
+import pytz
 
 DATABASE = os.getenv('DATABASE_URL')
 TOKEN = os.getenv('BOT_TOKEN')
@@ -79,4 +81,5 @@ async def get_disintar_nfts(address, limit):
                                     data={'entity_name': 'NFT', 'order_by': '[]',
                                           'filter_by': '[{"name":"owner__wallet_address","value":"' + address + '"},{"name":"collection__address","value":["' + COLLECTION + '"],"operator":"in"}]',
                                           'limit': limit,
-                                          'page': 0}).text)['data']
+                                          'page': 0,
+                                          'request_time': datetime.now(pytz.timezone('Europe/Moscow')).strftime('%d.%m.%Y, %H:%M:%S')}).text)['data']
