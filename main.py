@@ -37,7 +37,7 @@ async def inline_handler(query: types.InlineQuery):
     return await query.answer(total_answer, is_personal=True, cache_time=60)
 
 
-@dp.message_handler(commands=['start'], lambda m: m.chat.id > 0)
+@dp.message_handler(lambda m: m.chat.id > 0, commands=['start'])
 async def start_message(msg: types.Message):
     """
     Приветствие
