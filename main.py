@@ -31,7 +31,7 @@ async def inline_handler(query: types.InlineQuery):
                                                            title=name,
                                                            thumb_url=image,
                                                            input_message_content=InputTextMessageContent(
-                                                               message_text=f'{language["my_nft"]}\n\n<b>{name}</b><a href="{image}"> </a>\n\n<a href="https://beta.disintar.io/object/{address}">{language["disintar"]}</a>',
+                                                               message_text=f'<a href="tg://user?id={query.from_user.id}">{language["i"]}</a> {language["my_nft"]}\n\n<b>{name}</b><a href="{image}"> </a>\n\n<a href="https://beta.disintar.io/object/{address}">{language["disintar"]}</a>',
                                                                disable_web_page_preview=False,
                                                                parse_mode=ParseMode.HTML)))
     return await query.answer(total_answer, is_personal=True, cache_time=60)
@@ -47,11 +47,12 @@ async def start_message(msg: types.Message):
     cursor.execute(f"select * from verify where tgid = '{msg.from_user.id}'")
     verified = len(cursor.fetchall())
     if verified:
-        await bot.send_message(msg.chat.id, language['already_verified'], reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton(text=language['get_privileges'], callback_data='privileges')))
+        await bot.send_message(msg.chat.id, language['already_verified'], reply_markup=InlineKeyboardMarkup().add(
+            InlineKeyboardButton(text=language['get_privileges'], callback_data='privileges')))
     else:
         await bot.send_message(msg.chat.id, language['start_message'],
-                            reply_markup=InlineKeyboardMarkup().add(
-                                InlineKeyboardButton(text=language['start_verify'], callback_data='verify')))
+                               reply_markup=InlineKeyboardMarkup().add(
+                                   InlineKeyboardButton(text=language['start_verify'], callback_data='verify')))
 
 
 @dp.callback_query_handler(lambda c: c.data == 'privileges')
@@ -64,7 +65,8 @@ async def privileges(callback_query: types.CallbackQuery):
                                                  creates_join_request=True)
         await bot.send_message(callback_query.message.chat.id,
                                f'{language["privileges"]}',
-                               reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton(text=language['join_chat'], url=link.invite_link)).add(
+                               reply_markup=InlineKeyboardMarkup().add(
+                                   InlineKeyboardButton(text=language['join_chat'], url=link.invite_link)).add(
                                    InlineKeyboardButton(text=language['nft_share'], switch_inline_query='')))
         await callback_query.answer()
     else:
@@ -166,11 +168,11 @@ async def check_nft(msg: types.Message):
                 nfts = await get_disintar_nfts(owner_address, 1)
             if len(nfts) != 0 or len(contest) > 0:
                 await bot.send_message(msg.chat.id,
-                                        f'{language["send"]} <a href="http://qrcoder.ru/code/?ton%3A%2F%2Ftransfer%2FEQABh4JBalyRKN42tZB1jevT3BheWqHYjkhSv3zoHldqqRJs%3Famount%3D10000000%26text%3Dverify{msg.from_user.id}&4&0"> </a><b>0.01 TON</b>\n\n{language["from"]} <code>{owner_address}</code>\n\n{language["to"]} <code>EQABh4JBalyRKN42tZB1jevT3BheWqHYjkhSv3zoHldqqRJs</code>\n\n'
-                                        f'{language["comment"]} <code>verify{msg.from_user.id}</code>\n\n{language["scan_qr"]}',
-                                        parse_mode=ParseMode.HTML,
-                                        reply_markup=InlineKeyboardMarkup().add(
-                                            InlineKeyboardButton(text=language['done'],
+                                       f'{language["send"]} <a href="http://qrcoder.ru/code/?ton%3A%2F%2Ftransfer%2FEQABh4JBalyRKN42tZB1jevT3BheWqHYjkhSv3zoHldqqRJs%3Famount%3D10000000%26text%3Dverify{msg.from_user.id}&4&0"> </a><b>0.01 TON</b>\n\n{language["from"]} <code>{owner_address}</code>\n\n{language["to"]} <code>EQABh4JBalyRKN42tZB1jevT3BheWqHYjkhSv3zoHldqqRJs</code>\n\n'
+                                       f'{language["comment"]} <code>verify{msg.from_user.id}</code>\n\n{language["scan_qr"]}',
+                                       parse_mode=ParseMode.HTML,
+                                       reply_markup=InlineKeyboardMarkup().add(
+                                           InlineKeyboardButton(text=language['done'],
                                                                 callback_data=owner_address)))
             else:
                 await msg.reply(language['no_nfts'])

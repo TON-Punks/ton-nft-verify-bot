@@ -37,10 +37,10 @@ connect = psycopg2.connect(DATABASE)
 cursor = connect.cursor()
 
 english = json.loads(open('en.json', 'r').read())
-english['my_nft'] = f'I have passed <a href="tg://user?id={BOT_ID}">verification</a>. This is my NFT:'
+english['my_nft'] = f'have passed <a href="tg://user?id={BOT_ID}">verification</a>. This is my NFT:'
 
 russian = json.loads(open('ru.json', 'rb').read())
-russian['my_nft'] = f'Я прошёл <a href="tg://user?id={BOT_ID}">верификацию</a>. Это мой NFT:'
+russian['my_nft'] = f'прошёл <a href="tg://user?id={BOT_ID}">верификацию</a>. Это мой NFT:'
 
 
 async def kick_user(tgid):

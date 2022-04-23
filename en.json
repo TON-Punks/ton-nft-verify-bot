@@ -20,5 +20,6 @@
   "already_verified": "You have already passed verification",
   "get_privileges": "What does it give?",
   "privileges": "Thanks to verification, the following features are available to you:",
-  "join_chat": "Join chat"
+  "join_chat": "Join chat",
+  "i": "I"
 }
