@@ -19,10 +19,9 @@ You need to specify these env variables to run this bot. If you run it locally, 
 ``` bash
 DATABASE_URL=       # PotsgreSQL database URL
 BOT_TOKEN=          # Telegram bot API token from @BotFather // Example: 1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ
-HEROKU_APP_NAME=    # Name of your Heroku app for webhook setup
-COLLECTION=         # TON address of NFT collection. // Example: EQDwxUWb1ZxUarpj-mUF1gzD_jT4yiScHi_VL5AezWjsMT88
+COLLECTION=         # TON address of NFT collection. // Example: EQAo92DYMokxghKcq-CkCGSk_MgXY5Fo1SPW20gkvZl75iCN
 TONCENTER_API_KEY=  # toncenter.com API key from @tonapibot
-
+HEROKU_APP_NAME=    # Name of your Heroku app for webhook setup (optional)
 ```
 
 ### Run bot locally

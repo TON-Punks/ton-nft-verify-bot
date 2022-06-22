@@ -238,4 +238,15 @@ async def check_holders():
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    executor.start_polling(dp, on_startup=on_startup)
+    if bot_mode == "POLLING":
+        executor.start_polling(dp, on_startup=on_startup)
+    elif bot_mode == "WEBHOOK":
+        executor.start_webhook(
+            dispatcher=dp,
+            webhook_path=WEBHOOK_PATH,
+            skip_updates=True,
+            on_startup=on_startup,
+            on_shutdown=on_shutdown,
+            host=WEBAPP_HOST,
+            port=WEBAPP_PORT,
+            )

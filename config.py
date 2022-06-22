@@ -11,6 +11,19 @@ BOT_ID = TOKEN.split(':')[0]
 CHAT_ID = int(os.getenv('CHAT_ID'))
 COLLECTION = detect_address(os.getenv('COLLECTION'))['bounceable']['b64url']
 
+try:
+    HEROKU_APP_NAME = os.getenv('HEROKU_APP_NAME')
+
+    WEBHOOK_HOST = f'https://{HEROKU_APP_NAME}.herokuapp.com'
+    WEBHOOK_PATH = f'/webhook/{TOKEN}'
+    WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
+
+    WEBAPP_HOST = '0.0.0.0'
+    WEBAPP_PORT = os.getenv('PORT', default=8000)
+    bot_mode = "WEBHOOK"
+except:
+    bot_mode = "POLLING"
+
 API_TOKEN = os.getenv('TONCENTER_API_KEY')
 
 TONCENTER_BASE = 'https://toncenter.com/api/v2/'
