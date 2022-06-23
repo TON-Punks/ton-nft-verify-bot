@@ -205,7 +205,13 @@ async def on_startup(dispatcher):
         connect.commit()
     except:
         pass
+    if bot_mode == "WEBHOOK":
+        await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
     asyncio.create_task(scheduler())
+
+
+async def on_shutdown(dispatcher):
+    await bot.delete_webhook()
 
 
 async def scheduler():
