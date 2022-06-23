@@ -4,6 +4,9 @@ from aiogram import Bot
 from aiogram.dispatcher import Dispatcher
 import psycopg2
 from address import detect_address
+from dotenv import load_dotenv
+
+load_dotenv()
 
 DATABASE = os.getenv('DATABASE_URL')
 TOKEN = os.getenv('BOT_TOKEN')
@@ -13,6 +16,8 @@ COLLECTION = detect_address(os.getenv('COLLECTION'))['bounceable']['b64url']
 
 try:
     HEROKU_APP_NAME = os.getenv('HEROKU_APP_NAME')
+    if HEROKU_APP_NAME is None:
+        assert TypeError
 
     WEBHOOK_HOST = f'https://{HEROKU_APP_NAME}.herokuapp.com'
     WEBHOOK_PATH = f'/webhook/{TOKEN}'
@@ -21,7 +26,7 @@ try:
     WEBAPP_HOST = '0.0.0.0'
     WEBAPP_PORT = os.getenv('PORT', default=8000)
     bot_mode = "WEBHOOK"
-except:
+except TypeError:
     bot_mode = "POLLING"
 
 API_TOKEN = os.getenv('TONCENTER_API_KEY')
