@@ -1,7 +1,7 @@
 {
     "name": "TON NFT Verificator Telegram Bot",
     "description": "Easy way to verify the holders of your NFT collection",
-    "repository": "https://github.com/Krokodealer/ton-nft-verify-bot",
+    "repository": "https://github.com/TON-Punks/ton-nft-verify-bot",
     "logo": "https://tonpunks.org/_nuxt/img/about.de416ec.gif",
     "keywords": ["python", "ton", "nft", "telegram"],
     "env": {
