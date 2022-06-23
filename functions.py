@@ -46,7 +46,7 @@ async def get_ton_addresses(address):
 async def get_user_nfts(address):
     address = (await get_ton_addresses(address))['b64url']
     await asyncio.sleep(1)
-    all_nfts = json.loads(requests.get(f"https://tonapi.io/v1/nft/getItemsByOwnerAddress",
+    all_nfts = json.loads(requests.get(f"https://tonapi.io/v1/nft/searchItems",
                                        params={"owner": address,
                                                "collection": COLLECTION,
                                                "include_on_sale": "true",
