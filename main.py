@@ -13,8 +13,10 @@ async def inline_handler(query: types.InlineQuery):
     """
     total_answer = []
     language = english if query.from_user.language_code != 'ru' else russian
+    connect, cursor = await open_connection()
     cursor.execute(f"select owner from verify where tgid = '{query.from_user.id}'")
     owner_address = cursor.fetchall()[0][0]
+    await close_connection(connect)
     nfts = await get_user_nfts(owner_address)
     for i in range(len(nfts)):
         try:
@@ -42,8 +44,10 @@ async def start_message(msg: types.Message):
     """
     await bot.send_chat_action(msg.chat.id, 'typing')
     language = english if msg.from_user.language_code != 'ru' else russian
+    connect, cursor = await open_connection()
     cursor.execute(f"select * from verify where tgid = '{msg.from_user.id}'")
     verified = len(cursor.fetchall())
+    await close_connection(connect)
     if verified:
         await bot.send_message(msg.chat.id, language['already_verified'], reply_markup=InlineKeyboardMarkup().add(
             InlineKeyboardButton(text=language['get_privileges'], callback_data='privileges')))
@@ -59,8 +63,10 @@ async def privileges(callback_query: types.CallbackQuery):
     What does verification provide?
     """
     language = english if callback_query.from_user.language_code != 'ru' else russian
+    connect, cursor = await open_connection()
     cursor.execute(f"select * from verify where tgid = '{callback_query.from_user.id}'")
     verified = len(cursor.fetchall())
+    await close_connection(connect)
     if verified:
         link = await bot.create_chat_invite_link(CHAT_ID, name=f'{callback_query.from_user.id}',
                                                  creates_join_request=True)
@@ -99,8 +105,10 @@ async def verify2(callback_query: types.CallbackQuery):
     await bot.send_chat_action(callback_query.message.chat.id, 'typing')
     language = english if callback_query.from_user.language_code != 'ru' else russian
     owner_address = callback_query.data
+    connect, cursor = await open_connection()
     cursor.execute(f"select * from verify where owner = '{owner_address}'")
     owner_verify = len(cursor.fetchall())
+    await close_connection(connect)
     owner_addresses = await get_ton_addresses(owner_address)
     try:
         if owner_verify != 0:
@@ -119,9 +127,10 @@ async def verify2(callback_query: types.CallbackQuery):
                 is_verified = True
                 break
         if is_verified:
+            connect, cursor = await open_connection()
             cursor.execute(
                 f"insert into verify (tgid, owner) values ('{callback_query.from_user.id}', '{owner_addresses['b64url']}') on conflict do nothing")
-            connect.commit()
+            await close_connection(connect)
             link = await bot.create_chat_invite_link(CHAT_ID, name=f'{callback_query.from_user.id}',
                                                      creates_join_request=True)
             await bot.send_message(callback_query.message.chat.id,
@@ -155,10 +164,12 @@ async def check_nft(msg: types.Message):
     try:
         await asyncio.sleep(1)
         owner_address = (await get_ton_addresses(msg.text))['b64url']
+        connect, cursor = await open_connection()
         cursor.execute(f"select * from verify where owner = '{owner_address}'")
         response = cursor.fetchall()
         cursor.execute(f"select * from contest where owner = '{owner_address}'")
         contest = cursor.fetchall()
+        await close_connection(connect)
         if len(response) == 0:
             await asyncio.sleep(1)
             nfts = await get_user_nfts(owner_address)
@@ -199,10 +210,11 @@ async def on_startup(dispatcher):
     contest: таблица для хранения адресов, которые не нуждаются в проверке на наличие NFT
     """
     try:
+        connect, cursor = await open_connection()
         cursor.execute(
             'CREATE TABLE IF NOT EXISTS verify (tgid int8 NOT NULL, "owner" text NULL, CONSTRAINT verify_tgid_key UNIQUE (tgid));')
         cursor.execute('CREATE TABLE IF NOT EXISTS contest ("owner" text NOT NULL);')
-        connect.commit()
+        await close_connection(connect)
     except:
         pass
     if bot_mode == "WEBHOOK":
@@ -225,15 +237,19 @@ async def check_holders():
     """
     Регулярная проверка на наличие у пользователей NFT. В случае продажи и/или передачи всех NFT, верификация снимается
     """
+    connect, cursor = await open_connection()
     cursor.execute(f"select * from verify")
     response = cursor.fetchall()
+    await close_connection(connect)
     owners = [x for x in response if x[1] is not None and x[1] != '']
     for owner in owners:
         try:
             tgid, owner_address = owner
             nfts = await get_user_nfts(owner_address)
+            connect, cursor = await open_connection()
             cursor.execute(f"select * from contest where owner = '{owner_address}'")
             contest = cursor.fetchall()
+            await close_connection(connect)
             if len(nfts) + len(contest) == 0:
                 await kick_user(tgid)
         except Exception as e:

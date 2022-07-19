@@ -14,11 +14,8 @@ BOT_ID = TOKEN.split(':')[0]
 CHAT_ID = int(os.getenv('CHAT_ID'))
 COLLECTION = detect_address(os.getenv('COLLECTION'))['bounceable']['b64url']
 
-try:
-    HEROKU_APP_NAME = os.getenv('HEROKU_APP_NAME')
-    if HEROKU_APP_NAME is None:
-        assert TypeError
-
+HEROKU_APP_NAME = os.getenv('HEROKU_APP_NAME')
+if not isinstance(HEROKU_APP_NAME, type(None)):
     WEBHOOK_HOST = f'https://{HEROKU_APP_NAME}.herokuapp.com'
     WEBHOOK_PATH = f'/webhook/{TOKEN}'
     WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
@@ -26,7 +23,7 @@ try:
     WEBAPP_HOST = '0.0.0.0'
     WEBAPP_PORT = os.getenv('PORT', default=8000)
     bot_mode = "WEBHOOK"
-except TypeError:
+else:
     bot_mode = "POLLING"
 
 API_TOKEN = os.getenv('TONCENTER_API_KEY')
@@ -40,9 +37,6 @@ headers = {
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
-
-connect = psycopg2.connect(DATABASE)
-cursor = connect.cursor()
 
 english = json.loads(open('en.json', 'r').read())
 english['my_nft'] = f'have passed <a href="tg://user?id={BOT_ID}">verification</a>. This is my NFT:'

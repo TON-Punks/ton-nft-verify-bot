@@ -1,11 +1,22 @@
 import asyncio
 import json
 import logging
-
+import psycopg2
 import requests
 
 from address import detect_address
-from config import russian, english, bot, cursor, connect, CHAT_ID, COLLECTION
+from config import russian, english, bot, CHAT_ID, COLLECTION, DATABASE
+
+
+async def open_connection():
+    connect = psycopg2.connect(DATABASE)
+    cursor = connect.cursor()
+    return connect, cursor
+
+
+async def close_connection(connect):
+    connect.commit()
+    connect.close()
 
 
 async def kick_user(tgid):
@@ -13,9 +24,10 @@ async def kick_user(tgid):
     Лишение пользователя верификации и права присутствовать в чате.
     """
     try:
+        connect, cursor = await open_connection()
         cursor.execute(
             f"delete from verify where tgid = '{tgid}'")
-        connect.commit()
+        await close_connection(connect)
     except Exception as e:
         logging.error(f"Failed to Delete {tgid} from Database\n"
                       f"{e}")
